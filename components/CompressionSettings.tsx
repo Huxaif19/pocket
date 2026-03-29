@@ -1,4 +1,5 @@
-import { CompressionMode, OutputFormat } from "../types/compression";
+import { useState, useEffect } from "react";
+import { CompressionMode, OutputFormat, TargetUnit } from "../types/compression";
 
 interface CompressionSettingsProps {
   mode: CompressionMode;
@@ -9,11 +10,39 @@ interface CompressionSettingsProps {
   setQuality: (quality: number) => void;
   targetSizeKb: number;
   setTargetSizeKb: (targetSizeKb: number) => void;
+  targetUnit: TargetUnit;
+  setTargetUnit: (unit: TargetUnit) => void;
 }
 
 export function CompressionSettings({
-  mode, setMode, format, setFormat, quality, setQuality, targetSizeKb, setTargetSizeKb
+  mode, setMode, format, setFormat, quality, setQuality, targetSizeKb, setTargetSizeKb, targetUnit, setTargetUnit
 }: CompressionSettingsProps) {
+  
+  // Local state for the target size input to allow empty strings during typing (fixing "can't remove 1")
+  const [inputValue, setInputValue] = useState(targetSizeKb.toString());
+
+  // Sync state with prop if prop changes externally
+  useEffect(() => {
+    setInputValue(targetSizeKb.toString());
+  }, [targetSizeKb]);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    
+    // Only allow numbers and one decimal point
+    if (val !== "" && !/^\d*\.?\d*$/.test(val)) {
+      return;
+    }
+
+    setInputValue(val);
+    
+    // Only update the parent state if it's a valid number >= 0
+    const parsed = parseFloat(val);
+    if (!isNaN(parsed) && parsed >= 0) {
+      setTargetSizeKb(parsed);
+    }
+  };
+
   return (
     <div className="space-y-8">
       {/* Settings Grid */}
@@ -87,20 +116,35 @@ export function CompressionSettings({
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <label className="text-sm font-medium text-zinc-300">Target File Size</label>
-              <span className="rounded bg-gold/10 px-2 py-0.5 text-xs font-bold text-gold">Limit Applied</span>
+              <div className="flex items-center gap-2 rounded-lg bg-zinc-900 p-1 border border-white/5">
+                 {(["kb", "mb"] as TargetUnit[]).map((u) => (
+                    <button
+                       key={u}
+                       onClick={() => setTargetUnit(u)}
+                       className={`px-3 py-1 text-[10px] font-black uppercase transition-all rounded-md ${
+                          targetUnit === u ? "bg-gold text-zinc-950" : "text-zinc-500 hover:text-zinc-300"
+                       }`}
+                    >
+                       {u}
+                    </button>
+                 ))}
+              </div>
             </div>
             <div className="relative">
               <input
-                type="number"
-                min="1"
-                value={targetSizeKb}
-                onChange={(e) => setTargetSizeKb(Math.max(1, Number(e.target.value)))}
-                className="w-full rounded-xl bg-zinc-800 p-4 pr-12 text-2xl font-bold text-zinc-100 outline-none ring-1 ring-white/10 focus:ring-gold/50 transition-all"
+                type="text"
+                inputMode="decimal"
+                value={inputValue}
+                onChange={handleInputChange}
+                className="w-full rounded-xl bg-zinc-800 p-4 pr-16 text-2xl font-bold text-zinc-100 outline-none ring-1 ring-white/10 focus:ring-gold/50 transition-all"
+                placeholder="0"
               />
-              <div className="absolute right-4 top-1/2 -translate-y-1/2 text-lg font-bold text-zinc-600">KB</div>
+              <div className="absolute right-4 top-1/2 -translate-y-1/2 text-lg font-bold text-zinc-600 uppercase">{targetUnit}</div>
             </div>
             <p className="text-[10px] uppercase tracking-tighter text-zinc-600 font-bold">
-              Backend will find the highest quality setting within this limit.
+              {targetUnit === "mb" 
+                ? "Optimal precision applied to your megabyte target." 
+                : "Backend will find the highest quality setting within this limit."}
             </p>
           </div>
         )}

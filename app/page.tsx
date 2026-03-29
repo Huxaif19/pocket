@@ -78,6 +78,8 @@ export default function Home() {
                       setQuality={compression.setQuality}
                       targetSizeKb={compression.targetSizeKb}
                       setTargetSizeKb={compression.setTargetSizeKb}
+                      targetUnit={compression.targetUnit}
+                      setTargetUnit={compression.setTargetUnit}
                     />
 
                     {/* Action Button */}

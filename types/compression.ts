@@ -1,5 +1,6 @@
 export type CompressionMode = "quality" | "targetSize";
 export type OutputFormat = "webp" | "jpeg" | "png" | "avif";
+export type TargetUnit = "kb" | "mb";
 
 export interface CompressionStats {
   originalSize: number;

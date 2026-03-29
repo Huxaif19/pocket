@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { CompressionMode, OutputFormat, CompressionStats } from "../types/compression";
+import { CompressionMode, OutputFormat, CompressionStats, TargetUnit } from "../types/compression";
 
 export function useCompression() {
   const [file, setFile] = useState<File | null>(null);
@@ -8,6 +8,7 @@ export function useCompression() {
   const [format, setFormat] = useState<OutputFormat>("webp");
   const [quality, setQuality] = useState<number>(80);
   const [targetSizeKb, setTargetSizeKb] = useState<number>(200);
+  const [targetUnit, setTargetUnit] = useState<TargetUnit>("kb");
   
   const [isCompressing, setIsCompressing] = useState(false);
   const [resultBlob, setResultBlob] = useState<Blob | null>(null);
@@ -67,7 +68,8 @@ export function useCompression() {
     if (mode === "quality") {
       formData.append("quality", quality.toString());
     } else {
-      formData.append("targetSizeKb", targetSizeKb.toString());
+      const mbMultiplier = targetUnit === "mb" ? 1024 : 1;
+      formData.append("targetSizeKb", (targetSizeKb * mbMultiplier).toString());
     }
 
     try {
@@ -122,10 +124,10 @@ export function useCompression() {
   };
 
   return {
-    file, previewUrl, mode, format, quality, targetSizeKb,
+    file, previewUrl, mode, format, quality, targetSizeKb, targetUnit,
     isCompressing, resultBlob, resultUrl, stats, error,
     fileInputRef,
-    setMode, setFormat, setQuality, setTargetSizeKb,
+    setMode, setFormat, setQuality, setTargetSizeKb, setTargetUnit,
     handleFileChange, processSelectedFile, reset, compressImage, downloadResult,
     setStats, setResultBlob, setResultUrl
   };
