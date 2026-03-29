@@ -11,11 +11,18 @@ interface RateLimitEntry {
 const store = new Map<string, RateLimitEntry>();
 
 export function getClientIp(req: NextRequest): string {
-  return (
-    req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
-    req.headers.get("x-real-ip") ??
-    "unknown"
-  );
+  // Use Next.js built-in property (most reliable in Vercel/Edge)
+  const nativeIp = (req as any).ip;
+  if (nativeIp) return nativeIp;
+
+  // Fallback but with strict preference for the first address (client)
+  const xForwardedFor = req.headers.get("x-forwarded-for");
+  if (xForwardedFor) {
+    const ips = xForwardedFor.split(",");
+    return ips[0].trim();
+  }
+
+  return req.headers.get("x-real-ip") ?? "unknown";
 }
 
 export interface RateLimitResult {

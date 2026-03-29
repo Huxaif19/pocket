@@ -27,6 +27,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import sharp from "sharp";
+import { LIMITS } from "@/lib/constants";
 
 import { compressByQuality, compressByTargetSize } from "@/helpers/compressor";
 import { errorResponse, validationError } from "@/lib/errors";
@@ -49,6 +50,15 @@ export async function POST(req: NextRequest) {
           "X-RateLimit-Remaining": "0",
         },
       }
+    );
+  }
+
+  // ── 1.5 early payload rejection (Abuse Protection) ──────────────────────
+  const contentLength = Number(req.headers.get("content-length") ?? "0");
+  if (contentLength > (LIMITS.MAX_FILE_SIZE_MB + 1) * 1024 * 1024) {
+    return NextResponse.json(
+      { success: false, error: `Payload too large. Max ${LIMITS.MAX_FILE_SIZE_MB}MB allowed.` },
+      { status: 413 }
     );
   }
 

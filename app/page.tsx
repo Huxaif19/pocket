@@ -8,6 +8,7 @@ import { PreviewStrip } from "../components/PreviewStrip";
 import { CompressionSettings } from "../components/CompressionSettings";
 import { CompressionResults } from "../components/CompressionResults";
 import { FeatureCards } from "../components/FeatureCards";
+import { Footer } from "@/components/Footer";
 
 export default function Home() {
   const compression = useCompression();
@@ -45,7 +46,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-100 selection:bg-gold/30">
-      <main className="mx-auto max-w-4xl px-6 py-4 md:py-8">
+      <main className="mx-auto max-w-4xl px-6">
         <Header />
 
         <div className="grid gap-12">
@@ -126,6 +127,9 @@ export default function Home() {
           )}
 
           <FeatureCards />
+
+          {/* Footer */}
+          <Footer/>
         </div>
       </main>
     </div>

@@ -34,5 +34,5 @@ export const LIMITS = {
   MAX_TARGET_SIZE_KB: 20 * 1024,
   TARGET_SIZE_MAX_ITERATIONS: 15, // Increased for hybrid search
   RATE_LIMIT_WINDOW_MS: 60_000,
-  RATE_LIMIT_MAX_REQUESTS: 15,
+  RATE_LIMIT_MAX_REQUESTS: 10,
 } as const;
